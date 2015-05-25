@@ -25,8 +25,13 @@ def glitch(path, amount, output, file_extension):
 						bout = bin
 						fout.write(bout)
 				except KeyError:
-					print("Sorry, this file extension is not supported.")
-					return
+					print("Cannot determine the header length for this file.\nTherefore, corrupting it may render it unusable.")
+					tmp = input("Continue anyway? (Y/n)")
+					if tmp.lower() == "y":
+						pass
+					else:
+						print("Stopping.")
+						return
 				bytes_written = 0
 				print("Writing bytes", end="")
 				while True:
@@ -52,9 +57,17 @@ def invokeUserInterface():
 	output = "null"
 	file_extension = ""
 	if __name__ == "__main__":
-		if len(sys.argv) == 3:
+		if len(sys.argv) == 2:
 			path = sys.argv[1]
 			file_extension = path.split(".")[::-1]
+		elif len(sys.argv) == 3:
+			path = sys.argv[1]
+			file_extension = path.split(".")[::-1]
+			try:
+				amount = float(sys.argv[2])
+			except ValueError:
+				print("[Glitch] Bad value entered for amount. Assuming default.")
+				amount = 0.1
 		elif len(sys.argv) == 4:
 			path = sys.argv[1]
 			file_extension = path.split(".")[::-1]
@@ -63,16 +76,8 @@ def invokeUserInterface():
 			except ValueError:
 				print("[Glitch] Bad value entered for amount. Assuming default.")
 				amount = 0.1
-		elif len(sys.argv) == 5:
-			path = sys.argv[1]
-			file_extension = path.split(".")[::-1]
-			try:
-				amount = float(sys.argv[2])
-			except ValueError:
-				print("[Glitch] Bad value entered for amount. Assuming default.")
-				amount = 0.1
 			output = sys.argv[3]
-		elif len(sys.argv) > 5:
+		elif len(sys.argv) > 4:
 			print("[Glitch] Too many arguments entered. Accepting the first three.")
 			path = sys.argv[1]
 			file_extension = path.split(".")[::-1]
@@ -82,19 +87,22 @@ def invokeUserInterface():
 				print("[Glitch] Bad value entered for amount. Assuming default.")
 				amount = 0.1
 			output = sys.argv[3]
-		print("glitch.py by sajattack, modified by tobyjonesdev\n")
+		print("glitch.py by sajattack, modified by tobycode\n")
 		while path == "null":
 			path = input("Enter the path to your input file:\n>>> ")
 		
 		while True:
-			try:
-				tmp = input("Enter the percentage of bits to corrupt, or hit enter for 0.1%:\n>>> ")
-				if not tmp:
+			if amount == 0.1:
+				try:
+					tmp = input("Enter the percentage of bits to corrupt, or hit enter for 0.1%:\n>>> ")
+					if not tmp:
+						break
+					float(tmp)
 					break
-				float(tmp)
+				except ValueError:
+					pass
+			else:
 				break
-			except ValueError:
-				pass
 		
 		file_extension = path.split(".")[::-1]
 		while output == "null":
@@ -113,6 +121,7 @@ def invokeUserInterface():
 		print("Output:\n\t" + output)
 		glitch(path, amount, output, file_extension)
 	else:
+
 		print("[Glitch] This function cannot be invoked from within another module. Sorry.")
 		sys.exit(1)
 invokeUserInterface()
